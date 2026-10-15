@@ -16,6 +16,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
+import DisposableCamera from "@/components/DisposableCamera";
 
 function GuestPageContent() {
   const params = useParams();
@@ -24,7 +25,9 @@ function GuestPageContent() {
   const [eventData, setEventData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraFilter, setCameraFilter] = useState("original");
+  const [selectedFile, setSelectedFile] = useState<File | Blob | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [guestName, setGuestName] = useState("");
   const [message, setMessage] = useState("");
@@ -34,6 +37,13 @@ function GuestPageContent() {
   const [activePhoto, setActivePhoto] = useState<any>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoCaptured = (blob: Blob, filter: string) => {
+    setCameraFilter(filter);
+    setSelectedFile(blob);
+    setPreviewUrl(URL.createObjectURL(blob));
+    setModalOpen(true);
+  };
 
   const fetchEvent = async () => {
     try {
@@ -174,17 +184,24 @@ function GuestPageContent() {
 
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => setCameraOpen(true)}
                 className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#C2737A] hover:bg-[#9F4D54] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <Camera className="w-5 h-5" />
-                <span>Kamera & Galeri Telefon</span>
+                <span>Buka Kamera Retro</span>
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white border border-[#EADFCF] hover:bg-[#FAF7F2] text-[#23272A] font-semibold text-xs transition-colors flex items-center justify-center gap-2"
+              >
+                <Upload className="w-4 h-4 text-[#C2737A]" />
+                <span>Pilih dari Galeri Telefon</span>
               </button>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 className="hidden"
                 onChange={handleFileChange}
               />
@@ -350,6 +367,14 @@ function GuestPageContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Disposable Retro Camera Modal */}
+      {cameraOpen && (
+        <DisposableCamera
+          onPhotoCaptured={handlePhotoCaptured}
+          onClose={() => setCameraOpen(false)}
+        />
       )}
     </div>
   );
