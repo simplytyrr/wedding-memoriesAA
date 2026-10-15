@@ -229,9 +229,22 @@ function GuestPageContent() {
                 >
                   <div className="relative aspect-square overflow-hidden bg-gray-100">
                     <img
-                      src={p.filePath}
+                      src={
+                        p.filePath.startsWith("http")
+                          ? p.filePath
+                          : p.filePath.startsWith("/uploads/")
+                          ? `/api/media/events_${p.weddingEventId || 1}/photos/${p.filePath.split("/").pop()}`
+                          : p.filePath
+                      }
                       alt={p.guestName}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      onError={(e: any) => {
+                        // Fallback jika direct path ada isu
+                        if (!e.target.src.includes("/api/media/")) {
+                          const fname = p.filePath.split("/").pop();
+                          e.target.src = `/api/media/events_${p.weddingEventId || 1}/photos/${fname}`;
+                        }
+                      }}
                     />
                   </div>
                   <div className="p-2 text-left border-t border-[#EADFCF]/60">

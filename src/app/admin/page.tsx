@@ -124,7 +124,23 @@ export default function AdminPage() {
               {mediaList.map((item) => (
                 <div key={item.id} className="border border-[#EADFCF] rounded-xl overflow-hidden bg-white shadow-2xs group flex flex-col justify-between">
                   <div className="relative aspect-square bg-gray-100">
-                    <img src={item.filePath} alt="Media" className="w-full h-full object-cover" />
+                    <img
+                      src={
+                        item.filePath.startsWith("http")
+                          ? item.filePath
+                          : item.filePath.startsWith("/uploads/")
+                          ? `/api/media/events_${item.weddingEventId || 1}/photos/${item.filePath.split("/").pop()}`
+                          : item.filePath
+                      }
+                      alt="Media"
+                      className="w-full h-full object-cover"
+                      onError={(e: any) => {
+                        if (!e.target.src.includes("/api/media/")) {
+                          const fname = item.filePath.split("/").pop();
+                          e.target.src = `/api/media/events_${item.weddingEventId || 1}/photos/${fname}`;
+                        }
+                      }}
+                    />
                     <button
                       onClick={() => setPreviewItem(item)}
                       className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
